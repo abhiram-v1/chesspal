@@ -11,6 +11,7 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css"
   />
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.css" />
   <style>
     body { margin:0; display:flex; justify-content:center; align-items:center; height:100vh; }
     #board { width:90vmin; max-width:600px; }
@@ -28,6 +29,7 @@
 
   <!-- 3) Chessboard.js (correct filename) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.js"></script>
 
   <!-- 4) Your code -->
   <script>
@@ -51,9 +53,14 @@
           if (!moves.length) return;
           $('.square-55d63').removeClass('highlight');
           moves.forEach(m => $('.square-' + m.to).addClass('highlight'));
+          highlightSquare(sq);
+          moves.forEach(m => highlightSquare(m.to));
         },
         onMouseoutSquare: () => $('.square-55d63').removeClass('highlight')
       });
+      function highlightSquare(sq) {
+        $('.square-' + sq).addClass('highlight');
+      }
     });
   </script>
 </body>
