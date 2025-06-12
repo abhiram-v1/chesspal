@@ -1,98 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
   <title>Chessboard Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Chessboard.js CSS -->
+  <!-- Chessboard.js CSS (correct filename on cdnjs) -->
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.css"
-    integrity="sha512-Fi640zc3vik/ManZzofYUY+ht9fzco7Pxez3YLA+k4GpX+SgFPUUgYb5s19/MgMUNr9T5xZGdkG16RS8Of/KZw=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
+    href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css"
   />
 
   <style>
-    /* Inline version of style.css */
-    body {
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f0f0f0;
-    }
-    #board {
-      width: 90vmin;
-      max-width: 600px;
-    }
-    .highlight {
-      background: rgba(255, 255, 0, 0.5) !important;
-    }
+    body { margin:0; display:flex; justify-content:center; align-items:center; height:100vh; }
+    #board { width:90vmin; max-width:600px; }
+    .highlight { background: rgba(255,255,0,0.5) !important; }
   </style>
 </head>
 <body>
   <div id="board"></div>
 
-  <!-- 1) jQuery -->
-  <script
-    src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJ+Yh7uGj6tuaq5t7R5oDkGc7f3Hgi9BgQt3E="
-    crossorigin="anonymous">
-  </script>
+  <!-- 1) jQuery (no integrity, so it can’t block) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <!-- 2) chess.js (global build v0.10.3) -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"
-    integrity="sha512-J6u3pK8BrUD+8FOkgiX9iFg1Tb+teFco/TThkhL2QfZ+7TGpblcNSZxpvnYg/sc4m6Okep+jQrDpEWEvFYYp2g=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer">
-  </script>
+  <!-- 2) Chess.js global build v0.10.3 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
-  <!-- 3) chessboard.js -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.js"
-    integrity="sha512-3H3h3oQk24AMOUNMT0WTrVCPO1PuWQ9dU0ZoYlQRgaQe9URXvNfEcJcT+hB+tkIzRGX3l7EFISg6WCEYgHiv1A=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer">
-  </script>
+  <!-- 3) Chessboard.js (correct filename) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
 
+  <!-- 4) Your code -->
   <script>
-    // Inline version of script.js
     $(function() {
       const game = new Chess();
       const board = Chessboard('board', {
         draggable: true,
         position: 'start',
-        onDragStart: (source, piece) => {
-          if (
-            game.game_over() ||
-            (game.turn() === 'w' && piece[0] === 'b') ||
-            (game.turn() === 'b' && piece[0] === 'w')
-          ) return false;
+        onDragStart: (s,p) => {
+          if (game.game_over() ||
+             (game.turn()==='w' && p[0]==='b') ||
+             (game.turn()==='b' && p[0]==='w')) return false;
         },
-        onDrop: (source, target) => {
-          const move = game.move({ from: source, to: target, promotion: 'q' });
-          if (!move) return 'snapback';
+        onDrop: (s,t) => {
+          const m = game.move({from:s,to:t,promotion:'q'});
+          if (!m) return 'snapback';
           board.position(game.fen());
         },
-        onMouseoverSquare: square => {
-          const moves = game.moves({ square, verbose: true });
+        onMouseoverSquare: sq => {
+          const moves = game.moves({ square: sq, verbose: true });
           if (!moves.length) return;
-          highlightSquare(square);
-          moves.forEach(m => highlightSquare(m.to));
-        },
-        onMouseoutSquare: () => {
           $('.square-55d63').removeClass('highlight');
-        }
+          moves.forEach(m => $('.square-' + m.to).addClass('highlight'));
+        },
+        onMouseoutSquare: () => $('.square-55d63').removeClass('highlight')
       });
-
-      function highlightSquare(sq) {
-        $('.square-' + sq).addClass('highlight');
-      }
     });
   </script>
 </body>
 </html>
+
