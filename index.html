@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chessground + Chess.js Demo</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/chessground@8.6.0/dist/chessground.min.css"
+  />
+  <style>
+    body {
+      margin: 0;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #board {
+      width: 480px;
+      height: 480px;
+    }
+  </style>
+</head>
+<body>
+  <div id="board"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://unpkg.com/chessground@8.6.0/dist/chessground.min.js"></script>
+  <script>
+    const game = new Chess();
+    const ground = Chessground(document.getElementById('board'), {
+      orientation: 'white',
+      draggable: { enabled: true },
+      highlight: { lastMove: true, check: true },
+      fen: game.fen(),
+      movable: {
+        free: false,
+        color: 'white',
+        events: {
+          after: (from, to) => {
+            const move = game.move({ from, to, promotion: 'q' });
+            if (move === null) {
+              ground.cancelMove();
+            } else {
+              ground.set({ fen: game.fen() });
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
