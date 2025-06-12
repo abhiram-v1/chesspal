@@ -1,68 +1,116 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Chessboard Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Chessboard.js CSS (correct filename on cdnjs) -->
+  <meta charset="utf-8" />
+  <title>Functional Chessboard</title>
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css"
+    href="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
   />
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.css" />
   <style>
-    body { margin:0; display:flex; justify-content:center; align-items:center; height:100vh; }
-    #board { width:90vmin; max-width:600px; }
-    .highlight { background: rgba(255,255,0,0.5) !important; }
+    #board {
+      width: 480px;
+      margin: 20px auto;
+    }
+    .highlight {
+      background: rgba(255, 255, 0, 0.5) !important;
+    }
   </style>
 </head>
 <body>
   <div id="board"></div>
 
-  <!-- 1) jQuery (no integrity, so it can’t block) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <!-- 2) Chess.js global build v0.10.3 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 
-  <!-- 3) Chessboard.js (correct filename) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.js"></script>
-
-  <!-- 4) Your code -->
   <script>
-    $(function() {
-      const game = new Chess();
-      const board = Chessboard('board', {
+    $(function () {
+      var board,
+        game = new Chess();
+
+      // Highlight legal moves on mouseover
+      function onMouseoverSquare(square, piece) {
+        var moves = game.moves({
+          square: square,
+          verbose: true,
+        });
+
+        if (moves.length === 0) return;
+
+        // Highlight the square the mouse is over
+        highlightSquare(square);
+
+        // Highlight the possible squares for that piece
+        for (var i = 0; i < moves.length; i++) {
+          highlightSquare(moves[i].to);
+        }
+      }
+
+      // Remove all highlights
+      function onMouseoutSquare(square, piece) {
+        removeHighlights();
+      }
+
+      // Add highlight to a square
+      function highlightSquare(square) {
+        var $square = $('#board .square-' + square);
+
+        var background = '#ff0';
+
+        $square.css('background', background);
+      }
+
+      // Remove highlights
+      function removeHighlights() {
+        $('#board .square-55d63').css('background', '');
+      }
+
+      // Handle piece drop on a square
+      function onDrop(source, target) {
+        // Try the move
+        var move = game.move({
+          from: source,
+          to: target,
+          promotion: 'q', // auto promote to queen
+        });
+
+        // Illegal move
+        if (move === null) return 'snapback';
+
+        board.position(game.fen());
+      }
+
+      // Prevent illegal dragging
+      function onDragStart(source, piece, position, orientation) {
+        if (
+          game.game_over() ||
+          (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+          (game.turn() === 'b' && piece.search(/^w/) !== -1)
+        ) {
+          return false;
+        }
+      }
+
+      // When piece dropped, update board
+      function onSnapEnd() {
+        board.position(game.fen());
+      }
+
+      var config = {
         draggable: true,
         position: 'start',
-        onDragStart: (s,p) => {
-          if (game.game_over() ||
-             (game.turn()==='w' && p[0]==='b') ||
-             (game.turn()==='b' && p[0]==='w')) return false;
-        },
-        onDrop: (s,t) => {
-          const m = game.move({from:s,to:t,promotion:'q'});
-          if (!m) return 'snapback';
-          board.position(game.fen());
-        },
-        onMouseoverSquare: sq => {
-          const moves = game.moves({ square: sq, verbose: true });
-          if (!moves.length) return;
-          $('.square-55d63').removeClass('highlight');
-          moves.forEach(m => $('.square-' + m.to).addClass('highlight'));
-          highlightSquare(sq);
-          moves.forEach(m => highlightSquare(m.to));
-        },
-        onMouseoutSquare: () => $('.square-55d63').removeClass('highlight')
-      });
-      function highlightSquare(sq) {
-        $('.square-' + sq).addClass('highlight');
-      }
+        onDragStart: onDragStart,
+        onDrop: onDrop,
+        onSnapEnd: onSnapEnd,
+        onMouseoutSquare: onMouseoutSquare,
+        onMouseoverSquare: onMouseoverSquare,
+      };
+
+      board = Chessboard('board', config);
     });
   </script>
 </body>
 </html>
+
 
